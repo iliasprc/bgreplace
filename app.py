@@ -14,7 +14,7 @@ from pipeline import init as init_pipeline
 
 
 init_upscaler()
-init_segmenter()
+#init_segmenter()
 init_depth_estimator()
 init_pipeline()
 

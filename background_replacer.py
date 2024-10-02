@@ -9,7 +9,7 @@ from PIL import Image, ImageFilter
 from scipy.ndimage import binary_dilation
 import numpy as np
 
-from segmenter import segment
+from segmenter import segment_bria as segment
 from depth_estimator import get_depth_map
 from pipeline import run_pipeline
 from image_utils import ensure_resolution, crop_centered
@@ -23,7 +23,7 @@ developer_mode = os.getenv('DEV_MODE', True)
 # init_depth_estimator()
 # init_pipeline()
 
-# torch.cuda.empty_cache()
+torch.cuda.empty_cache()
 
 POSITIVE_PROMPT_SUFFIX = "commercial product photography, 24mm lens f/8"
 NEGATIVE_PROMPT_SUFFIX = "cartoon, drawing, anime, semi-realistic, illustration, painting, art, text, greyscale, (black and white), lens flare, watermark, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, floating, levitating"

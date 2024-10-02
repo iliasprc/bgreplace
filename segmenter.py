@@ -1,6 +1,7 @@
 # Based on https://github.com/xuebinqin/DIS/blob/main/Colab_Demo.ipynb
 import os
 from huggingface_hub import hf_hub_download
+from transformers import pipeline
 
 from PIL import Image
 import numpy as np
@@ -157,6 +158,19 @@ def segment(image):
     mask = predict(net, image_tensor, orig_size, hypar, device)
 
     mask = Image.fromarray(mask).convert('L')
+    im_rgb = image.convert("RGB")
+
+    cropped = im_rgb.copy()
+    cropped.putalpha(mask)
+
+    return [cropped, mask]
+
+
+
+def segment_bria(image):
+    pipe = pipeline("image-segmentation", model="briaai/RMBG-1.4", trust_remote_code=True)
+    mask = pipe(image, return_mask = True).convert('L') # outputs a pillow mask
+    #pillow_image = pipe(image_path) # applies mask on input and returns a pillow image
     im_rgb = image.convert("RGB")
 
     cropped = im_rgb.copy()

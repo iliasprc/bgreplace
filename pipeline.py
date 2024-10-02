@@ -2,24 +2,25 @@ import torch
 from diffusers import StableDiffusionXLControlNetPipeline, \
 ControlNetModel, AutoencoderKL, UniPCMultistepScheduler,EulerAncestralDiscreteScheduler
 
-device = None
+device = 'cuda'
 pipe = None
 
 
-# "/home/ilias.papastratis/workdir/bria_models/bria_bg_gen_controlnet"
-use_bria = False
-if use_bria:
-    depth_cpkt = '/home/ilias.papastratis/workdir/bria_models/BRIA-2.3-ControlNet-Depth'
-    base_model = "/home/ilias.papastratis/workdir/bria_models/BRIA_2.3"
-   
-    
-else:
-    depth_cpkt = "diffusers/controlnet-depth-sdxl-1.0"
-    base_model = "SG161222/RealVisXL_V4.0"
 
-def init():
+def init(use_bria = True):
     global device, pipe
 
+
+    # "/home/ilias.papastratis/workdir/bria_models/bria_bg_gen_controlnet"
+    
+    if use_bria:
+        depth_cpkt = '/home/ilias.papastratis/workdir/bgreplace/depth_controlnet_test'
+        base_model = "/home/ilias.papastratis/workdir/bria_models/BRIA_2.3"
+    
+        
+    else:
+        depth_cpkt = "diffusers/controlnet-depth-sdxl-1.0"
+        base_model = "SG161222/RealVisXL_V4.0"
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     print("Initializing depth ControlNet...")
@@ -58,7 +59,7 @@ def init():
     #pipe.enable_xformers_memory_efficient_attention()
 
 
-def run_pipeline(image, positive_prompt, negative_prompt, seed):
+def run_pipeline(image, positive_prompt, negative_prompt, seed, lora_model=None,controlnet_conditioning_scale=0.65,num_inference_steps=30):
     pipe.unload_lora_weights()
     if seed == -1:
         print("Using random seed")
@@ -66,6 +67,8 @@ def run_pipeline(image, positive_prompt, negative_prompt, seed):
     else:
         print("Using seed:", seed)
         generator = torch.manual_seed(seed)
+    if lora_model!=None:
+        pipe.load_lora_weights(lora_model)
     # if '0%' in positive_prompt:
     #     pipe.load_lora_weights('/home/ilias.papastratis/workdir/trained_models/lora_models/lora_fage_realvisxl_fage0_v3/pytorch_lora_weights.safetensors')
     # elif '5%' in positive_prompt:
@@ -73,9 +76,9 @@ def run_pipeline(image, positive_prompt, negative_prompt, seed):
     images = pipe(
         prompt=positive_prompt,
         negative_prompt=negative_prompt,
-        num_inference_steps=30,
+        num_inference_steps=num_inference_steps,
         num_images_per_prompt=1,
-        controlnet_conditioning_scale=0.65,
+        controlnet_conditioning_scale=controlnet_conditioning_scale,
         guidance_scale=7,
         generator=generator,
         image=image
